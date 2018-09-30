@@ -383,7 +383,6 @@ requests = {git = "https://github.com/requests/requests.git", ref = "master", ed
         assert 'requests' in p.lockfile['default']
         assert 'idna' in p.lockfile['default']
         assert 'chardet' in p.lockfile['default']
-        assert '#egg=requests ; python_version >= \'2.6\'' in p.lockfile['default']
         c = p.pipenv('install')
         assert c.return_code == 0
 
