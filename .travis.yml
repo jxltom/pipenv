@@ -9,6 +9,7 @@ python:
 
 install:
   - pip install -e .
+  - pip --version
   - pipenv install --dev --system
 
 script: pytest
