@@ -9,7 +9,8 @@ python:
 
 install:
   - pip install -e .
-  - pip --version
-  - pipenv install --dev --system
+  - pipenv install --dev
+  - pip install -U pip==9.0.1
+  - which pip
 
 script: pytest
