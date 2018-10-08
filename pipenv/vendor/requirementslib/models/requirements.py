@@ -773,7 +773,7 @@ class Requirement(object):
     @property
     def markers_as_pip(self):
         if self.markers:
-            return " ; {0}".format(self.markers).replace('"', "'")
+            return "; {0}".format(self.markers).replace('"', "'")
 
         return ""
 
@@ -989,6 +989,11 @@ class Requirement(object):
         if as_list:
             return parts
         line = "".join(parts)
+
+        if line.startswith("-e"):
+            line = "-e '{0}'".format(line.split(" ", 1)[1])
+            #raise Exception(line)
+
         return line
 
     def get_markers(self):
