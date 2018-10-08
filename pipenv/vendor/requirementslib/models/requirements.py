@@ -624,7 +624,6 @@ class VCSRequirement(FileRequirement):
         if "@" in self.link.show_url and "@" in self.uri:
             uri, ref = self.uri.rsplit("@", 1)
             if ref in self.ref:
-                raise Exception(self.ref)
                 self.uri = uri
 
         yield vcsrepo
