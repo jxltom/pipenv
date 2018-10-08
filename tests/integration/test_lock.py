@@ -361,6 +361,8 @@ requests = {git = "https://github.com/requests/requests.git@883caaf", editable =
         assert c.return_code == 0
         assert p.lockfile['default']['requests']['git'] == 'https://github.com/requests/requests.git'
         assert p.lockfile['default']['requests']['ref'] == '883caaf145fbe93bd0d208a6b864de9146087312'
+        c = p.pipenv('install')
+        assert c.return_code == 0
 
 
 @pytest.mark.lock
@@ -377,6 +379,8 @@ requests = {git = "https://github.com/requests/requests.git", ref = "883caaf", e
         assert c.return_code == 0
         assert p.lockfile['default']['requests']['git'] == 'https://github.com/requests/requests.git'
         assert p.lockfile['default']['requests']['ref'] == '883caaf145fbe93bd0d208a6b864de9146087312'
+        c = p.pipenv('install')
+        assert c.return_code == 0
 
 
 @pytest.mark.extras
