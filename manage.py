@@ -10,5 +10,5 @@ if __name__ == '__main__':
     if sys.argv[0] == 'test':
         import pytest
 
-        sys.argv[0] = 'py.test'
+        sys.argv = ['py.test', '-n=0', 'tests/integration/test_lock.py::test_lock_editable_vcs_with_markers_without_install']
         sys.exit(pytest.main())
