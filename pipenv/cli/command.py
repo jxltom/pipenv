@@ -253,7 +253,7 @@ def install(
 
 
 @cli.command(short_help="Un-installs a provided package and removes it from Pipfile.")
-@option("--lock", is_flag=True, default=True, help="Lock afterwards.")
+@option("--skip-lock/--lock", is_flag=True, default=False, help="Lock afterwards.")
 @option(
     "--all-dev",
     is_flag=True,
@@ -268,9 +268,11 @@ def install(
 )
 @uninstall_options
 @pass_state
+@pass_context
 def uninstall(
+    ctx,
     state,
-    lock=False,
+    skip_lock=False,
     all_dev=False,
     all=False,
     **kwargs
@@ -284,11 +286,12 @@ def uninstall(
         three=state.three,
         python=state.python,
         system=state.system,
-        lock=lock,
+        lock=not skip_lock,
         all_dev=all_dev,
         all=all,
         keep_outdated=state.installstate.keep_outdated,
         pypi_mirror=state.pypi_mirror,
+        ctx=ctx
     )
     if retcode:
         sys.exit(retcode)
@@ -297,7 +300,9 @@ def uninstall(
 @cli.command(short_help="Generates Pipfile.lock.")
 @lock_options
 @pass_state
+@pass_context
 def lock(
+    ctx,
     state,
     **kwargs
 ):
@@ -310,6 +315,7 @@ def lock(
         do_init(dev=state.installstate.dev, requirements=state.installstate.requirementstxt,
                         pypi_mirror=state.pypi_mirror, pre=state.installstate.pre)
     do_lock(
+        ctx=ctx,
         clear=state.clear,
         pre=state.installstate.pre,
         keep_outdated=state.installstate.keep_outdated,
@@ -533,7 +539,13 @@ def graph(bare=False, json=False, json_tree=False, reverse=False):
 @argument("module", nargs=1)
 @pass_state
 def run_open(state, module, *args, **kwargs):
-    """View a given module in your editor."""
+    """View a given module in your editor.
+
+    This uses the EDITOR environment variable. You can temporarily override it,
+    for example:
+
+        EDITOR=atom pipenv open requests
+    """
     from ..core import which, ensure_project
 
     # Ensure that virtualenv is available.
@@ -590,6 +602,7 @@ def sync(
 
 
 @cli.command(short_help="Uninstalls all packages not specified in Pipfile.lock.")
+@option("--bare", is_flag=True, default=False, help="Minimal output.")
 @option("--dry-run", is_flag=True, default=False, help="Just output unneeded packages.")
 @verbose_option
 @three_option
