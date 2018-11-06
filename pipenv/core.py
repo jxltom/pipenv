@@ -1138,7 +1138,7 @@ def do_purge(bare=False, downloads=False, allow_global=False):
     # Skip purging if there is no packages which needs to be removed
     if not to_remove:
         if not bare:
-            click.echo("Found 0 installed package, skip purging")
+            click.echo("Found 0 installed package, skip purging.")
             click.echo(crayons.green("Environment now purged and fresh!"))
         return installed
 
