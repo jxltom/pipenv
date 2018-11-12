@@ -23,13 +23,26 @@ is_path = optional_instance_of(Path)
 is_projectfile = optional_instance_of(ProjectFile)
 
 
+def reorder_source_keys(data):
+    for i, entry in enumerate(data["source"]):
+        table = tomlkit.table()
+        table["name"] = entry["name"]
+        table["url"] = entry["url"]
+        table["verify_ssl"] = entry["verify_ssl"]
+        data["source"][i] = table
+    return data
+
+
 class PipfileLoader(plette.pipfiles.Pipfile):
     @classmethod
     def validate(cls, data):
         for key, klass in plette.pipfiles.PIPFILE_SECTIONS.items():
             if key not in data or key == "source":
                 continue
-            klass.validate(data[key])
+            try:
+                klass.validate(data[key])
+            except Exception:
+                pass
 
     @classmethod
     def load(cls, f, encoding=None):
@@ -37,6 +50,8 @@ class PipfileLoader(plette.pipfiles.Pipfile):
         if encoding is not None:
             content = content.decode(encoding)
         _data = tomlkit.loads(content)
+        _data["source"] = _data.get("source", []) + _data.get("sources", [])
+        _data = reorder_source_keys(_data)
         if "source" not in _data:
             # HACK: There is no good way to prepend a section to an existing
             # TOML document, but there's no good way to copy non-structural
@@ -45,7 +60,16 @@ class PipfileLoader(plette.pipfiles.Pipfile):
             sep = "" if content.startswith("\n") else "\n"
             content = plette.pipfiles.DEFAULT_SOURCE_TOML + sep + content
         data = tomlkit.loads(content)
-        return cls(data)
+        data = reorder_source_keys(data)
+        instance = cls(data)
+        new_data = reorder_source_keys(instance._data)
+        instance._data = new_data
+        return instance
+
+    def __getattribute__(self, key):
+        if key == "source":
+            return self._data[key]
+        return super(PipfileLoader, self).__getattribute__(key)
 
 
 @attr.s(slots=True)
@@ -53,6 +77,8 @@ class Pipfile(object):
     path = attr.ib(validator=is_path, type=Path)
     projectfile = attr.ib(validator=is_projectfile, type=ProjectFile)
     _pipfile = attr.ib(type=plette.pipfiles.Pipfile)
+    _pyproject = attr.ib(default=attr.Factory(tomlkit.document), type=tomlkit.toml_document.TOMLDocument)
+    build_system = attr.ib(default=attr.Factory(dict), type=dict)
     requirements = attr.ib(default=attr.Factory(list), type=list)
     dev_requirements = attr.ib(default=attr.Factory(list), type=list)
 
@@ -212,3 +238,24 @@ class Pipfile(object):
         if as_requirements:
             return self.requirements
         return self._pipfile.get('packages', {})
+
+    def _read_pyproject(self):
+        pyproject = self.path.parent.joinpath("pyproject.toml")
+        if pyproject.exists():
+            self._pyproject = tomlkit.load(pyproject)
+            build_system = self._pyproject.get("build-system", None)
+            if not os.path.exists(self.path_to("setup.py")):
+                if not build_system or not build_system.get("requires"):
+                    build_system = {
+                        "requires": ["setuptools>=38.2.5", "wheel"],
+                        "build-backend": "setuptools.build_meta",
+                    }
+                self._build_system = build_system
+
+    @property
+    def build_requires(self):
+        return self.build_system.get("requires", [])
+
+    @property
+    def build_backend(self):
+        return self.build_system.get("build-backend", None)
