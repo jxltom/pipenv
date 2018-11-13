@@ -150,7 +150,7 @@ class SystemPath(object):
         new_order = []
         target = os.path.normcase(os.path.normpath(os.path.abspath(path)))
         path_map = {
-            os.path.normcase(os.path.normpath(os.path.abspath(pth))): pth
+            os.path.normcase(os.path.normpath(os.path.abspath(str(pth)))): pth
             for pth in self.paths.keys()
         }
         if target in path_map:
