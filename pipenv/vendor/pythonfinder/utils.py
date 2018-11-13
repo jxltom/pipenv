@@ -2,13 +2,9 @@
 from __future__ import absolute_import, print_function
 
 import itertools
-import locale
 import os
-import subprocess
-import sys
 
 from fnmatch import fnmatch
-from itertools import chain
 
 import attr
 import six
@@ -115,6 +111,10 @@ def _filter_none(k, v):
     if v:
         return True
     return False
+
+
+def normalize_path(path):
+    return os.path.normpath(os.path.normcase(os.path.abspath(str(path))))
 
 
 @lru_cache(maxsize=1024)
