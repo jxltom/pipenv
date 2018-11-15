@@ -34,7 +34,7 @@ class DataView(object):
     provide a `__SCHEMA__` class attribute specifying a validator schema.
     """
     def __init__(self, data):
-        # self.validate(data)
+        self.validate(data)
         self._data = data
 
     def __repr__(self):
