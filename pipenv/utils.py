@@ -320,7 +320,7 @@ class Resolver(object):
         if self.sources:
             requirementstxt_sources = " ".join(self.pip_args) if self.pip_args else ""
             requirementstxt_sources = requirementstxt_sources.replace(" --", "\n--")
-        constraints_file.write(u"{0}\n".format(requirementstxt_sources))
+            constraints_file.write(u"{0}\n".format(requirementstxt_sources))
         constraints = self.initial_constraints
         constraints_file.write(u"\n".join([c for c in constraints]))
         constraints_file.close()
@@ -448,6 +448,12 @@ class Resolver(object):
             return self.hashes
 
 
+def _show_warning(message, category, filename, lineno, line):
+    warnings.showwarning(message=message, category=category, filename=filename,
+                         lineno=lineno, file=sys.stderr, line=line)
+    sys.stderr.flush()
+
+
 def actually_resolve_deps(
     deps,
     index_lookup,
@@ -462,13 +468,19 @@ def actually_resolve_deps(
 
     if not req_dir:
         req_dir = create_tracked_tempdir(suffix="-requirements", prefix="pipenv-")
-    constraints = get_resolver_metadata(
-        deps, index_lookup, markers_lookup, project, sources,
-    )
-    resolver = Resolver(constraints, req_dir, project, sources, clear=clear, pre=pre)
-    resolved_tree = resolver.resolve()
-    hashes = resolver.resolve_hashes()
+    warning_list = []
 
+    with warnings.catch_warnings(record=True) as warning_list:
+        constraints = get_resolver_metadata(
+            deps, index_lookup, markers_lookup, project, sources,
+        )
+        resolver = Resolver(constraints, req_dir, project, sources, clear=clear, pre=pre)
+        resolved_tree = resolver.resolve()
+        hashes = resolver.resolve_hashes()
+
+    for warning in warning_list:
+        _show_warning(warning.message, warning.category, warning.filename, warning.lineno,
+                      warning.line)
     return (resolved_tree, hashes, markers_lookup, resolver)
 
 
@@ -843,7 +855,6 @@ def mkdir_p(newdir):
                 if exn.errno != errno.EEXIST:
                     raise
 
-                
 
 def is_required_version(version, specified_version):
     """Check to see if there's a hard requirement for version
