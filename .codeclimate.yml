@@ -1,10 +1,12 @@
 engines:
   isort:
     enabled: true
+    channel: "beta"
   pep8:
     enabled: true
   pylint:
     enabled: true
+    channel: "beta"
     checks:
       import-error:
         enabled: false
