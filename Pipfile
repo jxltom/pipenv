@@ -11,6 +11,8 @@ click = "*"
 pytest-pypy = {path = "./tests/pytest-pypi", editable = true}
 pytest-tap = "*"
 pytest-cov = "*"
+codacy-coverage = "*"
+codecov = "*"
 flaky = "*"
 stdeb = {version="*", markers="sys_platform == 'linux'"}
 black = {version="*", markers="python_version >= '3.6'"}
