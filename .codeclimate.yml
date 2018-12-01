@@ -22,6 +22,8 @@ exclude_patterns:
 - "**/__pycache__/"
 - "tests/"
 - "**/test_*"
+- "pipenv/patched/"
+- "pipenv/vendor/"
 ratings:
   paths:
   - pipenv/**
