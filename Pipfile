@@ -10,6 +10,7 @@ pytest-xdist = "*"
 click = "*"
 pytest-pypy = {path = "./tests/pytest-pypi", editable = true}
 pytest-tap = "*"
+pytest-cov = "*"
 flaky = "*"
 stdeb = {version="*", markers="sys_platform == 'linux'"}
 black = {version="*", markers="python_version >= '3.6'"}
