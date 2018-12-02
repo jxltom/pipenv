@@ -1,7 +1,8 @@
 .. _cli:
 
-☤ Pipenv CLI Reference
+Pipenv CLI Reference
 ======================================
 
 .. click:: pipenv:cli
+   :prog: pipenv
    :show-nested:
