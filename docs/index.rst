@@ -121,6 +121,7 @@ Further Documentation Guides
 
    basics
    advanced
+   cli
    diagnose
 
 Contribution Guides
@@ -131,13 +132,6 @@ Contribution Guides
 
    dev/philosophy
    dev/contributing
-
-☤ Pipenv Usage
---------------
-
-.. click:: pipenv:cli
-   :prog: pipenv
-   :show-nested:
 
 Indices and tables
 ==================
