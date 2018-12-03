@@ -426,10 +426,10 @@ class Environment(object):
                         rdeps[name].update(pkg[name])
                 else:
                     rdeps.update(pkg)
-        for k in list(rdeps.keys()):
-            entry = rdeps[k]
-            if entry.get("parents"):
-                rdeps[k]["parents"] = set([p for p in unnest(entry["parents"])])
+        #for k in list(rdeps.keys()):
+        #    entry = rdeps[k]
+        #    if entry.get("parents"):
+        #        rdeps[k]["parents"] = set([p for p in unnest(entry["parents"])])
         return rdeps
 
     def get_working_set(self):
