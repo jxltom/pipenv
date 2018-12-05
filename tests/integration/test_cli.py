@@ -225,4 +225,4 @@ def test_pipenv_clear(PipenvInstance):
     with PipenvInstance() as p:
         c = p.pipenv('--clear')
         assert c.return_code == 0
-        assert 'Clearing caches…' in c.out
+        assert 'Clearing caches' in c.out
