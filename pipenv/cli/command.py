@@ -64,19 +64,15 @@ def cli(
     state,
     where=False,
     venv=False,
+    py=False,
+    envs=False,
     rm=False,
     bare=False,
-    three=False,
-    python=False,
-    help=False,
-    py=False,
-    site_packages=False,
-    envs=False,
-    man=False,
     completion=False,
-    pypi_mirror=None,
+    man=False,
     support=None,
-    clear=False,
+    help=False,
+    site_packages=False,
     **kwargs
 ):
     # Handle this ASAP to make shell startup fast.
@@ -146,10 +142,9 @@ def cli(
             get_pipenv_diagnostics()
             return 0
         # --clear was passed…
-        elif clear:
+        elif state.clear:
             do_clear()
             return 0
-
         # --venv was passed…
         elif venv:
             # There is no virtualenv yet.
