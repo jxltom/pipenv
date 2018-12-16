@@ -150,24 +150,6 @@ six = {{version = "*", index = "pypi"}}
 
 @pytest.mark.install
 @pytest.mark.project
-def test_rewrite_outline_table(PipenvInstance, pypi):
-    with PipenvInstance(pypi=pypi, chdir=True) as p:
-        with open(p.pipfile_path, 'w') as f:
-            contents = """
-[packages.requests]
-version = "*"
-            """.strip()
-            f.write(contents)
-        c = p.pipenv('install click')
-        assert c.return_code == 0
-        with open(p.pipfile_path) as f:
-            contents = f.read()
-        assert "[packages.requests]" not in contents
-        assert 'requests = {version = "*"}' in contents
-
-
-@pytest.mark.install
-@pytest.mark.project
 def test_include_editable_packages(PipenvInstance, pypi, testsroot, pathlib_tmpdir):
     file_name = "requests-2.19.1.tar.gz"
     package = pathlib_tmpdir.joinpath("requests-2.19.1")
