@@ -173,7 +173,7 @@ def test_run_in_virtualenv(PipenvInstance, pypi, virtualenv):
         os.environ['PIPENV_IGNORE_VIRTUALENVS'] = '1'
         c = p.pipenv('run which pip')
         assert c.return_code == 0
-        assert 'pipenv' in c.out
+        assert 'virtualenv' not in c.out
 
         os.environ.pop("PIPENV_IGNORE_VIRTUALENVS", None)
         c = p.pipenv('run which pip')
