@@ -8,6 +8,7 @@ import pytest
 from pipenv.patched import pipfile
 from pipenv.project import Project
 from pipenv.utils import temp_environ
+import pipenv.environments
 
 
 @pytest.mark.project
@@ -167,26 +168,44 @@ def test_include_editable_packages(PipenvInstance, pypi, testsroot, pathlib_tmpd
 
 
 @pytest.mark.project
-@pytest.mark.skip(reason="this doesn't work on travis")
-def test_run_in_virtualenv(PipenvInstance, pypi, virtualenv):
-    with PipenvInstance(chdir=True, pypi=pypi) as p:
-        os.environ['PIPENV_IGNORE_VIRTUALENVS'] = '1'
-        c = p.pipenv('run which pip')
+@pytest.mark.virtualenv
+def test_run_in_virtualenv_with_global_context(PipenvInstance, pypi, virtualenv):
+    with PipenvInstance(chdir=True, pypi=pypi, venv_root=virtualenv.as_posix(), ignore_virtualenvs=False, venv_in_project=False) as p:
+        c = p.pipenv('run pip freeze')
         assert c.return_code == 0
-        assert 'virtualenv' not in c.out
-
-        os.environ.pop("PIPENV_IGNORE_VIRTUALENVS", None)
-        c = p.pipenv('run which pip')
-        assert c.return_code == 0
-        assert 'virtualenv' in c.out
+        assert 'Creating a virtualenv' not in c.err
         project = Project()
-        assert project.virtualenv_location == str(virtualenv)
+        assert project.virtualenv_location == virtualenv.as_posix()
         c = p.pipenv("run pip install click")
         assert c.return_code == 0
         assert "Courtesy Notice" in c.err
+        c = p.pipenv("install six")
+        assert c.return_code == 0
         c = p.pipenv('run python -c "import click;print(click.__file__)"')
         assert c.return_code == 0
         assert c.out.strip().startswith(str(virtualenv))
         c = p.pipenv("clean --dry-run")
         assert c.return_code == 0
         assert "click" in c.out
+        
+@pytest.mark.skip(reason="this doesn't work on travis")
+def test_run_in_virtualenv(PipenvInstance, pypi, virtualenv):
+    with PipenvInstance(chdir=True, pypi=pypi) as p:
+        os.environ['PIPENV_IGNORE_VIRTUALENVS'] = '1'
+        c = p.pipenv('run which pip')
+        assert c.return_code == 0
+        assert 'Creating a virtualenv' not in c.err
+        project = Project()
+        assert project.virtualenv_location == virtualenv.as_posix()
+        c = p.pipenv("run pip install click")
+        assert c.return_code == 0
+        assert "Courtesy Notice" in c.err
+        c = p.pipenv("install six")
+        assert c.return_code == 0
+        c = p.pipenv('run python -c "import click;print(click.__file__)"')
+        assert c.return_code == 0
+        assert c.out.strip().startswith(str(virtualenv))
+        c = p.pipenv("clean --dry-run")
+        assert c.return_code == 0
+        assert "click" in c.out
+

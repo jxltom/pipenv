@@ -12,8 +12,6 @@ import click_completion
 import crayons
 import delegator
 
-from click_didyoumean import DYMCommandCollection
-
 from ..__version__ import __version__
 from .options import (
     CONTEXT_SETTINGS, PipenvGroup, code_option, common_options, deploy_option,
@@ -150,7 +148,11 @@ def cli(
             # There is no virtualenv yet.
             if not project.virtualenv_exists:
                 echo(
-                    crayons.red("No virtualenv has been created for this project yet!"),
+                    "{}({}){}".format(
+                        crayons.red("No virtualenv has been created for this project"),
+                        crayons.white(project.project_directory, bold=True),
+                        crayons.red(" yet!")
+                    ),
                     err=True,
                 )
                 ctx.abort()
@@ -296,6 +298,7 @@ def uninstall(
     if retcode:
         sys.exit(retcode)
 
+
 @cli.command(short_help="Generates Pipfile.lock.", context_settings=CONTEXT_SETTINGS)
 @lock_options
 @pass_state
@@ -396,7 +399,6 @@ def shell(
 def run(state, command, args):
     """Spawns a command installed into the virtualenv."""
     from ..core import do_run
-
     do_run(
         command=command, args=args, three=state.three, python=state.python, pypi_mirror=state.pypi_mirror
     )
@@ -551,7 +553,7 @@ def run_open(state, module, *args, **kwargs):
 
         EDITOR=atom pipenv open requests
     """
-    from ..core import which, ensure_project
+    from ..core import which, ensure_project, inline_activate_virtual_environment
 
     # Ensure that virtualenv is available.
     ensure_project(
@@ -571,6 +573,7 @@ def run_open(state, module, *args, **kwargs):
     else:
         p = c.out.strip().rstrip("cdo")
     echo(crayons.normal("Opening {0!r} in your EDITOR.".format(p), bold=True))
+    inline_activate_virtual_environment()
     edit(filename=p)
     return 0
 
@@ -625,11 +628,9 @@ def sync(
 def clean(ctx, state, dry_run=False, bare=False, user=False):
     """Uninstalls all packages not specified in Pipfile.lock."""
     from ..core import do_clean
-    do_clean(ctx=ctx, three=state.three, python=state.python, dry_run=dry_run)
+    do_clean(ctx=ctx, three=state.three, python=state.python, dry_run=dry_run,
+             system=state.system)
 
 
-# Only invoke the "did you mean" when an argument wasn't passed (it breaks those).
-if "-" not in "".join(sys.argv) and len(sys.argv) > 1:
-    cli = DYMCommandCollection(sources=[cli])
 if __name__ == "__main__":
     cli()
