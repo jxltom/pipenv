@@ -187,25 +187,24 @@ def test_run_in_virtualenv_with_global_context(PipenvInstance, pypi, virtualenv)
         c = p.pipenv("clean --dry-run")
         assert c.return_code == 0
         assert "click" in c.out
-        
-@pytest.mark.skip(reason="this doesn't work on travis")
-def test_run_in_virtualenv(PipenvInstance, pypi, virtualenv):
+
+
+@pytest.mark.project
+@pytest.mark.virtualenv
+def test_run_in_virtualenv(PipenvInstance, pypi):
     with PipenvInstance(chdir=True, pypi=pypi) as p:
-        os.environ['PIPENV_IGNORE_VIRTUALENVS'] = '1'
-        c = p.pipenv('run which pip')
+        c = p.pipenv('run pip freeze')
         assert c.return_code == 0
-        assert 'Creating a virtualenv' not in c.err
+        assert 'Creating a virtualenv' in c.err
         project = Project()
-        assert project.virtualenv_location == virtualenv.as_posix()
         c = p.pipenv("run pip install click")
         assert c.return_code == 0
-        assert "Courtesy Notice" in c.err
         c = p.pipenv("install six")
         assert c.return_code == 0
         c = p.pipenv('run python -c "import click;print(click.__file__)"')
         assert c.return_code == 0
-        assert c.out.strip().startswith(str(virtualenv))
+        assert c.out.strip().startswith(str(project.virtualenv_location))
         c = p.pipenv("clean --dry-run")
         assert c.return_code == 0
         assert "click" in c.out
-
+    

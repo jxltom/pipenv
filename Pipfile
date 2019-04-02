@@ -6,7 +6,6 @@ twine = "*"
 sphinx-click = "*"
 click = "*"
 pytest_pypi = {path = "./tests/pytest-pypi", editable = true}
-pytest-pypy = {path = "./tests/pytest-pypi", editable = true}
 pytest-tap = "*"
 pytest-cov = "*"
 codecov = "*"
