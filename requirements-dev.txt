@@ -1,91 +1,82 @@
 -i https://pypi.org/simple
--e .
 -e ./tests/pytest-pypi
--e git+https://github.com/hawkowl/towncrier.git@47754a607a9b03f06affaf167d65b990786aae25#egg=towncrier
--e git+https://github.com/sarugaku/passa.git@c8bfb67639b6caef8de849e31e6dc5d2b7cf19b4#egg=passa
+-e .[dev,tests]
 alabaster==0.7.12
-apipkg==1.5
+apipkg==1.5 ; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'
 appdirs==1.4.3
 arpeggio==1.9.0
-atomicwrites==1.2.1
-attrs==18.2.0
-babel==2.6.0
-beautifulsoup4==4.6.3
-black==18.9b0 ; python_version >= '3.6'
-bleach==3.0.2
+atomicwrites==1.3.0
+attrs==19.1.0 ; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'
+babel==2.7.0 ; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'
+beautifulsoup4==4.7.1
+black==19.3b0 ; python_version >= '3.6'
+bleach==3.1.0 ; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'
 bs4==0.0.1
-cerberus==1.2
-certifi==2018.11.29
+certifi==2019.3.9
 chardet==3.0.4
 click==7.0
 codacy-coverage==1.3.11
 codecov==2.0.15
-colorama==0.4.1
-coverage==5.0a4
-coveralls==1.5.1
-cursor==1.2.0
-distlib==0.2.8
+coverage==5.0a5 ; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3' and python_version < '4'
+coveralls==1.7.0
 docopt==0.6.2
 docutils==0.14
-execnet==1.5.0
-first==2.0.1
-flake8==3.6.0
-flaky==3.4.0
-flask==1.0.2
-idna==2.7
-imagesize==1.1.0
+entrypoints==0.3 ; python_version >= '2.7'
+execnet==1.6.0 ; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'
+flake8==3.7.7 ; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'
+flaky==3.5.3
+flask==1.0.3
+git+https://github.com/sarugaku/passa.git@a2ba0b30c86339cae5ef3a03046fc9c583452c40#egg=passa
+idna==2.8
+imagesize==1.1.0 ; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'
+importlib-metadata==0.15 ; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'
 incremental==17.5.0
 invoke==1.2.0
-isort==4.3.4
-itsdangerous==1.1.0
-jedi==0.13.1
-jinja2==2.10
-markupsafe==1.1.0
+isort==4.3.20
+itsdangerous==1.1.0 ; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'
+jedi==0.13.3
+jinja2==2.10.1
+markupsafe==1.1.1 ; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'
 mccabe==0.6.1
-mock==2.0.0
-more-itertools==4.3.0
-packaging==18.0
-parso==0.3.1
-parver==0.2.0
-pbr==5.1.1
-pep517==0.3
-pip-shims==0.3.2
-pkginfo==1.4.2
-plette[validation]==0.2.2
-pluggy==0.8.0
-py==1.7.0
-pycodestyle==2.4.0
-pyflakes==2.0.0
-pygments==2.3.0
-pyparsing==2.3.0
-pytest-cov==2.6.0
-pytest-forked==0.2
+mock==3.0.5 ; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'
+more-itertools==7.0.0 ; python_version > '2.7'
+packaging==19.0 ; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'
+parso==0.4.0
+parver==0.2.1 ; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'
+pbr==5.2.0
+pkginfo==1.5.0.1
+pluggy==0.12.0 ; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'
+py==1.8.0 ; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'
+pycodestyle==2.5.0 ; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'
+pyflakes==2.1.1 ; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'
+pygments==2.4.1 ; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'
+pyparsing==2.4.0 ; python_version >= '2.6' and python_version not in '3.0, 3.1, 3.2, 3.3'
+pytest-cov==2.7.1
+pytest-forked==1.0.2
 pytest-tap==2.3
-pytest-xdist==1.24.1
-pytest==4.0.1
-pytoml==0.1.20
-pytz==2018.7
+pytest-xdist==1.28.0 ; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'
+pytest==4.5.0 ; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'
+pytz==2019.1
 readme-renderer==24.0
-requests-toolbelt==0.8.0
-requests==2.20.1
-requirementslib==1.3.3
-resolvelib==0.2.2
-rope==0.11.0
-six==1.11.0
+requests-toolbelt==0.9.1
+requests==2.22.0 ; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'
+rope==0.14.0
+six==1.12.0 ; python_version >= '2.6' and python_version not in '3.0, 3.1, 3.2, 3.3'
 snowballstemmer==1.2.1
-sphinx-click==1.4.1
-sphinx==1.5.5
+soupsieve==1.9.1
+sphinx-click==2.1.0
+sphinx==1.8.5 ; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'
+sphinxcontrib-websupport==1.1.2 ; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'
 stdeb==0.8.5 ; sys_platform == 'linux'
 tap.py==2.5
 toml==0.10.0
-tomlkit==0.5.3
-tqdm==4.28.1
-twine==1.12.1
-urllib3==1.24.1
-virtualenv-clone==0.4.0
-virtualenv==16.1.0
-vistir[spinner]==0.2.5
+towncrier==19.2.0
+tqdm==4.32.1 ; python_version >= '2.6' and python_version not in '3.0, 3.1, 3.2, 3.3'
+twine==1.13.0 ; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'
+urllib3==1.25.3 ; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3' and python_version < '4'
+virtualenv-clone==0.5.3 ; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'
+virtualenv==16.6.0 ; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'
+wcwidth==0.1.7
 webencodings==0.5.1
-werkzeug==0.14.1
-wheel==0.32.3
-yaspin==0.14.0
+werkzeug==0.15.4 ; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'
+zipp==0.5.1 ; python_version >= '2.7'
