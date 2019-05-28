@@ -164,3 +164,5 @@ typeshed/
 mypyhtml/
 
 .idea/
+
+pip-wheel-metadata/pipenv\.dist-info/
