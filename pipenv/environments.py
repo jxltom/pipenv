@@ -3,10 +3,12 @@
 import os
 import sys
 
+from io import UnsupportedOperation
+
 from appdirs import user_cache_dir
 
 from ._compat import fix_utf8
-from .vendor.vistir.misc import fs_str
+from .vendor.vistir.misc import _isatty, fs_str
 
 
 # HACK: avoid resolver.py uses the wrong byte code files.
@@ -234,6 +236,15 @@ Default is to lock dependencies and update ``Pipfile.lock`` on each run.
 NOTE: This only affects the ``install`` and ``uninstall`` commands.
 """
 
+PIPENV_RESOLVE_VCS = _is_env_truthy(os.environ.get("PIPENV_RESOLVE_VCS", 'true'))
+"""Tells Pipenv whether to resolve all VCS dependencies in full.
+
+As of Pipenv 2018.11.26, only editable VCS dependencies were resolved in full.
+To retain this behavior and avoid handling any conflicts that arise from the new
+approach, you may set this to '0', 'off', or 'false'.
+"""
+
+
 PIPENV_PYUP_API_KEY = os.environ.get(
     "PIPENV_PYUP_API_KEY", "1ab8d58f-5122e025-83674263-bc1e79e0"
 )
@@ -263,7 +274,10 @@ PIPENV_SHELL = (
 )
 
 # Internal, to tell whether the command line session is interactive.
-SESSION_IS_INTERACTIVE = bool(os.isatty(sys.stdout.fileno()))
+try:
+    SESSION_IS_INTERACTIVE = _isatty(sys.stdout.fileno())
+except UnsupportedOperation:
+    SESSION_IS_INTERACTIVE = _isatty(sys.stdout)
 
 
 # Internal, consolidated verbosity representation as an integer. The default
