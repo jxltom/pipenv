@@ -14,6 +14,25 @@ from .vendor.vistir.misc import _isatty, fs_str
 # HACK: avoid resolver.py uses the wrong byte code files.
 # I hope I can remove this one day.
 os.environ["PYTHONDONTWRITEBYTECODE"] = fs_str("1")
+_false_values = ("0", "false", "no", "off")
+_true_values = ("1", "true", "yes", "on")
+
+
+def env_to_bool(val):
+    """
+    Convert **val** to boolean, returning True if truthy or False if falsey
+
+    :param Any val: The value to convert
+    :return: False if Falsey, True if truthy
+    :rtype: bool
+    """
+    if isinstance(val, bool):
+        return val
+    if val.lower() in _false_values:
+        return False
+    if val.lower() in _true_values:
+        return True
+    raise ValueError("Value is not a valid boolean-like: {0}".format(val))
 
 
 def _is_env_truthy(name):
@@ -21,14 +40,48 @@ def _is_env_truthy(name):
     """
     if name not in os.environ:
         return False
-    return os.environ.get(name).lower() not in ("0", "false", "no", "off")
+    return os.environ.get(name).lower() not in _false_values
+
+
+def get_from_env(arg, prefix="PIPENV", check_for_negation=True):
+    """
+    Check the environment for a variable, returning its truthy or stringified value
+
+    For example, setting ``PIPENV_NO_RESOLVE_VCS=1`` would mean that
+    ``get_from_env("RESOLVE_VCS", prefix="PIPENV")`` would return ``False``.
+
+    :param str arg: The name of the variable to look for
+    :param str prefix: The prefix to attach to the variable, defaults to "PIPENV"
+    :param bool check_for_negation: Whether to check for ``<PREFIX>_NO_<arg>``, defaults
+        to True
+    :return: The value from the environment if available
+    :rtype: Optional[Union[str, bool]]
+    """
+    negative_lookup = "NO_{0}".format(arg)
+    positive_lookup = arg
+    if prefix:
+        positive_lookup = "{0}_{1}".format(prefix, arg)
+        negative_lookup = "{0}_{1}".format(prefix, negative_lookup)
+    if positive_lookup in os.environ:
+        value = os.environ[positive_lookup]
+        try:
+            return env_to_bool(value)
+        except ValueError:
+            return value
+    if check_for_negation and negative_lookup in os.environ:
+        value = os.environ[negative_lookup]
+        try:
+            return not env_to_bool(value)
+        except ValueError:
+            return value
+    return None
 
 
 PIPENV_IS_CI = bool("CI" in os.environ or "TF_BUILD" in os.environ)
 
 # HACK: Prevent invalid shebangs with Homebrew-installed Python:
 # https://bugs.python.org/issue22490
-os.environ.pop("__PYVENV_LAUNCHER__", None)
+_OSX_VENV = os.environ.pop("__PYVENV_LAUNCHER__", None)
 
 # Load patched pip instead of system pip
 os.environ["PIP_SHIMS_BASE_MODULE"] = fs_str("pipenv.patched.notpip")
@@ -160,7 +213,7 @@ PIPENV_SPINNER = "dots" if not os.name == "nt" else "bouncingBar"
 PIPENV_SPINNER = os.environ.get("PIPENV_SPINNER", PIPENV_SPINNER)
 """Sets the default spinner type.
 
-Spinners are identitcal to the node.js spinners and can be found at
+Spinners are identical to the ``node.js`` spinners and can be found at
 https://github.com/sindresorhus/cli-spinners
 """
 
@@ -244,10 +297,14 @@ NOTE: This only affects the ``install`` and ``uninstall`` commands.
 PIP_EXISTS_ACTION = os.environ.get("PIP_EXISTS_ACTION", "w")
 """Specifies the value for pip's --exists-action option
 
-Defaullts to (w)ipe
+Defaults to ``(w)ipe``
 """
 
-PIPENV_RESOLVE_VCS = _is_env_truthy(os.environ.get("PIPENV_RESOLVE_VCS", 'true'))
+PIPENV_RESOLVE_VCS = (
+    os.environ.get("PIPENV_RESOLVE_VCS") is None
+    or _is_env_truthy("PIPENV_RESOLVE_VCS")
+)
+
 """Tells Pipenv whether to resolve all VCS dependencies in full.
 
 As of Pipenv 2018.11.26, only editable VCS dependencies were resolved in full.
@@ -256,7 +313,7 @@ approach, you may set this to '0', 'off', or 'false'.
 """
 
 PIPENV_PYUP_API_KEY = os.environ.get(
-    "PIPENV_PYUP_API_KEY", "1ab8d58f-5122e025-83674263-bc1e79e0"
+    "PIPENV_PYUP_API_KEY", None
 )
 
 # Internal, support running in a different Python from sys.executable.
@@ -269,7 +326,7 @@ PIPENV_TEST_INDEX = os.environ.get("PIPENV_TEST_INDEX")
 PIPENV_USE_SYSTEM = False
 PIPENV_VIRTUALENV = None
 if "PIPENV_ACTIVE" not in os.environ and not PIPENV_IGNORE_VIRTUALENVS:
-    PIPENV_VIRTUALENV = os.environ.get("VIRTUAL_ENV")
+    PIPENV_VIRTUALENV = os.environ.get("VIRTUAL_ENV") or _OSX_VENV
     PIPENV_USE_SYSTEM = bool(PIPENV_VIRTUALENV)
 
 # Internal, tells Pipenv to skip case-checking (slow internet connections).
@@ -284,11 +341,7 @@ PIPENV_SHELL = (
 )
 
 # Internal, to tell whether the command line session is interactive.
-try:
-    SESSION_IS_INTERACTIVE = _isatty(sys.stdout.fileno())
-except UnsupportedOperation:
-    SESSION_IS_INTERACTIVE = _isatty(sys.stdout)
-
+SESSION_IS_INTERACTIVE = _isatty(sys.stdout)
 
 # Internal, consolidated verbosity representation as an integer. The default
 # level is 0, increased for wordiness and decreased for terseness.
@@ -314,6 +367,18 @@ def is_quiet(threshold=-1):
     return PIPENV_VERBOSITY <= threshold
 
 
+def _is_using_venv():
+    # type: () -> bool
+    """Check for venv-based virtual environment which sets sys.base_prefix"""
+    return _OSX_VENV is not None or sys.prefix != getattr(sys, "base_prefix", sys.prefix)
+
+
+def _is_using_virtualenv():
+    # type: () -> bool
+    """Check for virtualenv-based environment which sets sys.real_prefix"""
+    return getattr(sys, "real_prefix", None) is not None
+
+
 def is_in_virtualenv():
     """
     Check virtualenv membership dynamically
@@ -328,7 +393,9 @@ def is_in_virtualenv():
     ignore_virtualenvs = bool(os.environ.get("PIPENV_IGNORE_VIRTUALENVS", False))
 
     if not pipenv_active and not ignore_virtualenvs:
-        virtual_env = os.environ.get("VIRTUAL_ENV")
+        virtual_env = any([
+            _is_using_virtualenv(), _is_using_venv(), os.environ.get("VIRTUAL_ENV")
+        ])
         use_system = bool(virtual_env)
     return (use_system or virtual_env) and not (pipenv_active or ignore_virtualenvs)
 

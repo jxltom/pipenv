@@ -51,11 +51,11 @@ DEP_PIP_PAIRS = [
         # Extras in url
         {
             "discord.py": {
-                "file": "https://github.com/Rapptz/discord.py/archive/rewrite.zip",
+                "file": "https://github.com/Rapptz/discord.py/archive/async.zip",
                 "extras": ["voice"],
             }
         },
-        "https://github.com/Rapptz/discord.py/archive/rewrite.zip#egg=discord.py[voice]",
+        "https://github.com/Rapptz/discord.py/archive/async.zip#egg=discord.py[voice]",
     ),
     (
         {
@@ -78,6 +78,7 @@ def mock_unpack(link, source_dir, download_dir, only_download=False, session=Non
 
 @pytest.mark.utils
 @pytest.mark.parametrize("deps, expected", DEP_PIP_PAIRS)
+@pytest.mark.needs_internet
 def test_convert_deps_to_pip(monkeypatch, deps, expected):
     with monkeypatch.context() as m:
         import pip_shims
@@ -223,6 +224,7 @@ class TestUtils:
         assert pipenv.utils.is_valid_url(not_url) is False
 
     @pytest.mark.utils
+    @pytest.mark.needs_internet
     def test_download_file(self):
         url = "https://github.com/pypa/pipenv/blob/master/README.md"
         output = "test_download.md"
@@ -425,6 +427,7 @@ twine = "*"
             == expected_args
         )
 
+    @pytest.mark.utils
     def test_invalid_prepare_pip_source_args(self):
         sources = [{}]
         with pytest.raises(PipenvUsageError):

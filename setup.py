@@ -42,7 +42,7 @@ extras = {
         "parver",
         "invoke",
     ],
-    "tests": ["pytest<5.0", "pytest-tap", "pytest-xdist", "flaky", "mock"],
+    "tests": ["pytest<5.0", "pytest-timeout", "pytest-xdist", "flaky", "mock"],
 }
 
 
@@ -144,6 +144,7 @@ setup(
         ],
     },
     python_requires=">=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*",
+    zip_safe=True,
     setup_requires=[],
     install_requires=required,
     extras_require=extras,

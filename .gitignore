@@ -168,3 +168,4 @@ prime/
 stage/
 pip-wheel-metadata/
 .idea/
+.vim/
